@@ -1,4 +1,37 @@
 # TIFL Interpreter in Rust
+
+![Language](https://img.shields.io/badge/language-Rust-orange)
+![Project](https://img.shields.io/badge/project-interpreter-blue)
+![Concepts](https://img.shields.io/badge/concepts-type_systems-purple)
+![Focus](https://img.shields.io/badge/focus-programming_languages-success)
+
+Interpreter and type checker for the Typed Interpreted Functional Language (TIFL) written in Rust.
+
+The project explores lexical analysis, parsing, abstract syntax trees (ASTs), type checking, and runtime evaluation through a modular interpreter architecture inspired by programming-language implementation concepts.
+
+![TIFL Pipeline](docs/images/Interpreter_detailed_schema.png)
+
+---
+
+## Features
+
+- Lexer / tokenizer
+- Recursive-descent parser
+- Abstract syntax tree generation
+- Static type checking
+- Runtime evaluation
+- Scope and environment handling
+- Functional language concepts
+- Error reporting
+
+---
+
+## Technical Concepts Explored
+
+- Programming language implementation
+- Parsing & tokenization
+- Abstract syntax trees (AST)
+- Type systems
 - Static analysis
 - Runtime environments
 - Expression evaluation
