@@ -1,0 +1,18 @@
+0=int0,
+3=int3,
+c=Bool[true],
+testStr = String[
+  elem=(Char['a'], String[
+    elem=(Char['b'], String[
+      elem=(Char['c'], String[""])
+    ])
+  ])
+],
+isSomeChar = \o:OptChar.o[
+  none = Bool[false],
+  some = \c:Char.Bool[true]
+],
+unwrapOrQ = \o:OptChar.o[
+  none = Char['?'],
+  some = \c:Char.c
+]

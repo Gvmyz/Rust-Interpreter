@@ -1,0 +1,73 @@
+# CLI examples (run with: cargo run ./prelude.tifl "<expr>")
+
+not Bool[true]
+and Bool[true] Bool[false]
+or Bool[false] Bool[true]
+xor Bool[true] Bool[true]
+
+ifBool Bool[false] Bool[true] Bool[false]
+ifBool Bool[true] Bool[true] Bool[false]
+
+# Using case postfix
+Bool[true][true=Bool[false] | Bool[true]]
+Bool[false][true=Bool[false] | Bool[true]]
+
+incr int2
+decr int0
+neg int3
+
++ int1 int3
+- int3 int1
+* int2 int3
+eq int1 (+ int0 int1)
+
+abs intNeg3
+isNeg intNeg1
+isPos int2
+
+eq int2 int2
+le int1 int3
+ge int3 int3
+
+(Bool[true], Bool[false]).1
+(int2, int3, int1).3
+
++ ( (int1, int2).1 ) ( (int1, int2).2 )
+
+mkPairBool Bool[true] Bool[false]
+fstBool (mkPairBool Bool[true] Bool[false])
+sndBool (mkPairBool Bool[true] Bool[false])
+
+PairBool{fst=Bool[false],snd=Bool[true]}.fst
+
+strlen abStr
+head abStr
+tail abStr
+
+nth abStr int0
+nth abStr int1
+nth abStr intNeg1
+
+(nth abStr int1)[none=Bool[false], some=\c:Char.Bool[true]]
+(nth abStr int3)[none=Char['?'], some=\c:Char.c]
+
+++ abStr abStr
+strlen (++ abStr abStr)
+
+(OptInt[some=int1])[none=OptInt[none], some=\n:Int.OptInt[some=(incr n)]]
+
+(nth abStr int0)[none=OptBool[none], some=\c:Char.OptBool[some=Bool[true]]]
+
+Bool[false][true=Char['T'] | Char['F']]
+
+OptBool[some=Bool[true]][none=Char['N'], some=\b:Bool.Char['S']]
+
+++ abStr (String[elem=((nth abStr int2)[none=Char['?'], some=\c:Char.c], String[\"\"])])
+
+unwrapOrQ (nth testStr 0)
+isSomeChar (nth testStr 0)
+
+# Should Error
+idInt Bool[true]
+(Bool[true], Bool[false]).3
+OptBool[none=Bool[true]]

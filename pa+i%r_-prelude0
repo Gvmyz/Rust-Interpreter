@@ -1,0 +1,5 @@
+// PairBool
+PairBool={fst:Bool,snd:Bool},
+mkPairBool=\a:Bool.\b:Bool.PairBool{fst=a,snd=b},
+fstBool=\p:PairBool.p.fst,
+sndBool=\p:PairBool.p.snd

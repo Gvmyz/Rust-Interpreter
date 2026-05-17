@@ -1,0 +1,16 @@
+[package]
+name = "tifl_interpreter"
+version = "0.1.0"
+edition = "2024"
+description = "Interprets an expression in the TIFL Language using the prelude"
+
+[dependencies]
+clap = { version = "4.5.54", features = ["derive"] }
+miette = { version = "7.6.0", features = ["fancy"] }
+thiserror = "2.0.17"
+
+[dev-dependencies]
+tempfile = "3.24.0"
+
+
+

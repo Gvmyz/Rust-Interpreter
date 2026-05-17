@@ -1,0 +1,66 @@
+// TIFL Prelude (minimal, runtime-safe)
+// =====================================================
+// Defines required base datatypes and a few "usual" helpers
+// using only the core language constructs.
+
+// ---- Base datatypes ----
+Bool = [true,false],
+
+// A concrete pair type for Bool × Bool (TIFL has no generics)
+Pair={a:Bool,b:Bool},
+
+// Option for Bool
+OptBool=[none,some:Bool],
+
+// A tiny Char universe (extend as needed)
+Char=[a,b,c,space],
+
+// Recursive String as a leading Char + rest String
+Str=[empty,cons:(Char,Str)],
+
+// Natural numbers (Peano)
+Nat=[z,s:Nat],
+
+// Integers (with negatives), include a recursion-free alternative z
+Int=[z,pos:Nat,neg:Nat],
+
+
+// ---- Bool ops ----
+not=\b:Bool.b[true=Bool[false],false=Bool[true]],
+and=\a:Bool.\b:Bool.a[true=b,false=Bool[false]],
+or=\a:Bool.\b:Bool.a[true=Bool[true],false=b],
+ifBool=\c:Bool.\t:Bool.\f:Bool.c[true=t,false=f],
+
+
+// ---- Pairs ----
+mkPair=\x:Bool.\y:Bool.Pair{a=x,b=y},
+fst=\p:Pair.p.a,
+snd=\p:Pair.p.b,
+
+
+// ---- Option ----
+// unwrapOr : OptBool -> Bool -> Bool
+unwrapOr=\o:OptBool.\d:Bool.o[none=d,some=\x:Bool.x],
+isSome=\o:OptBool.o[none=Bool[false],some=\x:Bool.Bool[true]],
+
+
+// ---- Nat constants ----
+zero=Nat[z],
+one=Nat[s=zero],
+two=Nat[s=one],
+three=Nat[s=two],
+
+
+// ---- Int constants ----
+int0=Int[z],
+int1=Int[pos=one],
+intNeg1=Int[neg=one],
+
+
+// ---- Char / String constants ----
+charA=Char[a],
+charB=Char[b],
+spaceChar=Char[space],
+
+emptyStr=Str[empty],
+abStr=Str[cons=(charA,Str[cons=(charB,emptyStr)])]

@@ -1,0 +1,261 @@
+// NOTE: This file is a *program*, so defs must be separated by commas.
+// Whitespace + // comments are allowed.
+
+// ===== Booleans =====
+Bool=[true,false],
+// not is a function that takes b:Bool and cases on b
+not=\b:Bool.b[true=Bool[false],false=Bool[true]],
+
+// Curried function takes a, returns function taking b
+and=\a:Bool.\b:Bool.a[true=b,false=Bool[false]],
+or=\a:Bool.\b:Bool.a[true=Bool[true],false=b],
+xor=\a:Bool.\b:Bool.a[true=not b,false=b],
+ifBool=\c:Bool.\t:Bool.\e:Bool.c[true=t,false=e],
+
+// ===== Integers (with negatives) =====
+// Int = 0 | i:Int | d:Int | nan
+//   i = increment (positive direction), d = decrement (negative direction)
+// Prebuilt values
+Int=[0,i:Int,d:Int,nan],
+int0=Int[0],
+int1=Int[i=int0],
+int2=Int[i=int1],
+int3=Int[i=int2],
+intNeg1=Int[d=int0],
+intNeg2=Int[d=intNeg1],
+intNeg3=Int[d=intNeg2],
+
+// incr / decr move by 1, preserving nan (case on x)
+incr=\x:Int.x[
+    nan=Int[nan],
+    0=Int[i=int0],
+    i=\v:Int.Int[i=(incr v)],
+    d=\v:Int.v
+],
+decr=\x:Int.x[
+    nan=Int[nan],
+    0=Int[d=int0],
+    i=\v:Int.v,
+    d=\v:Int.Int[d=(decr v)]
+],
+
+// unary minus (swap i and d recursively)
+neg=\x:Int.x[
+    nan=Int[nan],
+    0=Int[0],
+    i=\v:Int.Int[d=(neg v)],
+    d=\v:Int.Int[i=(neg v)]
+],
+
+// addition: handles negatives + nan
+// Result is gotten by (in addition) decreasing x and increasing y accordingly.
+// Recursively move one increment from x into y
++=\x:Int.\y:Int.x[
+    nan=Int[nan],
+    0=y,
+    i=\v:Int.+ v (incr y),
+    d=\v:Int.+ v (decr y)
+],
+
+// subtraction
+-=\x:Int.\y:Int.+ x (neg y),
+
+// equality 
+eq=\x:Int.\y:Int.x[
+  nan=Bool[false],
+  0=y[nan=Bool[false],0=Bool[true],i=\v:Int.Bool[false],d=\v:Int.Bool[false]],
+  i=\vx:Int.y[nan=Bool[false],0=Bool[false],i=\vy:Int.eq vx vy,d=\vy:Int.Bool[false]],
+  d=\vx:Int.y[nan=Bool[false],0=Bool[false],i=\vy:Int.Bool[false],d=\vy:Int.eq vx vy]
+],
+
+// less-than (this defines "<")
+<=\x:Int.\y:Int.x[
+    nan=Bool[false],
+    0=y[nan=Bool[false],0=Bool[false],i=\v:Int.Bool[true],d=\v:Int.Bool[false]],
+    i=\vx:Int.y[nan=Bool[false],0=Bool[false],i=\vy:Int.< vx vy,d=\vy:Int.Bool[false]],
+    d=\vx:Int.y[nan=Bool[false],0=Bool[true],i=\vy:Int.Bool[true],d=\vy:Int.< vx vy]
+],
+
+// less than or equal
+le = \x:Int.\y:Int.or (< x y) (eq x y),
+
+// greater-than
+>=\x:Int.\y:Int.< y x,
+
+// greater or equal
+ge = \x:Int.\y:Int.or (> x y) (eq x y),
+
+// absolute value
+abs=\x:Int.x[
+  nan=Int[nan],
+  0=Int[0],
+  i=\v:Int.Int[i=(abs v)],
+  d=\v:Int.Int[i=(abs v)]
+],
+
+isNan=\x:Int.x[nan=Bool[true],0=Bool[false],i=\v:Int.Bool[false],d=\v:Int.Bool[false]],
+isZero=\x:Int.x[nan=Bool[false],0=Bool[true],i=\v:Int.Bool[false],d=\v:Int.Bool[false]],
+
+min=\x:Int.\y:Int.(< x y)[true=x,false=y],
+max=\x:Int.\y:Int.(< x y)[true=y,false=x],
+
+// sign tests
+isNeg=\x:Int.x[nan=Bool[false],0=Bool[false],i=\v:Int.Bool[false],d=\v:Int.Bool[true]],
+isPos=\x:Int.x[nan=Bool[false],0=Bool[false],i=\v:Int.Bool[true],d=\v:Int.Bool[false]],
+
+// multiplication via repeated addition on |x|, then apply sign
+mulPos=\x:Int.\y:Int.x[
+  nan=Int[nan],
+  0=Int[0],
+  i=\v:Int.+ y (mulPos v y),
+  d=\v:Int.Int[nan]
+],
+*=\x:Int.\y:Int.
+  (xor (isNeg x) (isNeg y))[
+    true=neg (mulPos (abs x) (abs y)),
+    false=mulPos (abs x) (abs y)
+  ],
+
+// ===== Characters =====
+Char=['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
+      'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+      '0','1','2','3','4','5','6','7','8','9',' ','!','?','.',',','-','_'],
+
+
+// Char equality via case split over c, then over d
+// eqChar : Char -> Char -> Bool
+eqChar=\c:Char.\d:Char.c[
+  'a'=d['a'=Bool[true] | Bool[false]],
+  'b'=d['b'=Bool[true] | Bool[false]],
+  'c'=d['c'=Bool[true] | Bool[false]],
+  'd'=d['d'=Bool[true] | Bool[false]],
+  'e'=d['e'=Bool[true] | Bool[false]],
+  'f'=d['f'=Bool[true] | Bool[false]],
+  'g'=d['g'=Bool[true] | Bool[false]],
+  'h'=d['h'=Bool[true] | Bool[false]],
+  'i'=d['i'=Bool[true] | Bool[false]],
+  'j'=d['j'=Bool[true] | Bool[false]],
+  'k'=d['k'=Bool[true] | Bool[false]],
+  'l'=d['l'=Bool[true] | Bool[false]],
+  'm'=d['m'=Bool[true] | Bool[false]],
+  'n'=d['n'=Bool[true] | Bool[false]],
+  'o'=d['o'=Bool[true] | Bool[false]],
+  'p'=d['p'=Bool[true] | Bool[false]],
+  'q'=d['q'=Bool[true] | Bool[false]],
+  'r'=d['r'=Bool[true] | Bool[false]],
+  's'=d['s'=Bool[true] | Bool[false]],
+  't'=d['t'=Bool[true] | Bool[false]],
+  'u'=d['u'=Bool[true] | Bool[false]],
+  'v'=d['v'=Bool[true] | Bool[false]],
+  'w'=d['w'=Bool[true] | Bool[false]],
+  'x'=d['x'=Bool[true] | Bool[false]],
+  'y'=d['y'=Bool[true] | Bool[false]],
+  'z'=d['z'=Bool[true] | Bool[false]],
+  'A'=d['A'=Bool[true] | Bool[false]],
+  'B'=d['B'=Bool[true] | Bool[false]],
+  'C'=d['C'=Bool[true] | Bool[false]],
+  'D'=d['D'=Bool[true] | Bool[false]],
+  'E'=d['E'=Bool[true] | Bool[false]],
+  'F'=d['F'=Bool[true] | Bool[false]],
+  'G'=d['G'=Bool[true] | Bool[false]],
+  'H'=d['H'=Bool[true] | Bool[false]],
+  'I'=d['I'=Bool[true] | Bool[false]],
+  'J'=d['J'=Bool[true] | Bool[false]],
+  'K'=d['K'=Bool[true] | Bool[false]],
+  'L'=d['L'=Bool[true] | Bool[false]],
+  'M'=d['M'=Bool[true] | Bool[false]],
+  'N'=d['N'=Bool[true] | Bool[false]],
+  'O'=d['O'=Bool[true] | Bool[false]],
+  'P'=d['P'=Bool[true] | Bool[false]],
+  'Q'=d['Q'=Bool[true] | Bool[false]],
+  'R'=d['R'=Bool[true] | Bool[false]],
+  'S'=d['S'=Bool[true] | Bool[false]],
+  'T'=d['T'=Bool[true] | Bool[false]],
+  'U'=d['U'=Bool[true] | Bool[false]],
+  'V'=d['V'=Bool[true] | Bool[false]],
+  'W'=d['W'=Bool[true] | Bool[false]],
+  'X'=d['X'=Bool[true] | Bool[false]],
+  'Y'=d['Y'=Bool[true] | Bool[false]],
+  'Z'=d['Z'=Bool[true] | Bool[false]],
+  '0'=d['0'=Bool[true] | Bool[false]],
+  '1'=d['1'=Bool[true] | Bool[false]],
+  '2'=d['2'=Bool[true] | Bool[false]],
+  '3'=d['3'=Bool[true] | Bool[false]],
+  '4'=d['4'=Bool[true] | Bool[false]],
+  '5'=d['5'=Bool[true] | Bool[false]],
+  '6'=d['6'=Bool[true] | Bool[false]],
+  '7'=d['7'=Bool[true] | Bool[false]],
+  '8'=d['8'=Bool[true] | Bool[false]],
+  '9'=d['9'=Bool[true] | Bool[false]],
+  ' '=d[' '=Bool[true] | Bool[false]],
+  '!'=d['!'=Bool[true] | Bool[false]],
+  '?'=d['?'=Bool[true] | Bool[false]],
+  '.'=d['.'=Bool[true] | Bool[false]],
+  ','=d[','=Bool[true] | Bool[false]],
+  '-'=d['-'=Bool[true] | Bool[false]],
+  '_'=d['_'=Bool[true] | Bool[false]]
+],
+
+
+// ===== Strings =====
+String=["",elem:(Char,String)],
+Str=String,
+
+emptyStr=String[""],
+cons=\c:Char.\s:String.String[elem=(c,s)],
+
+++=\s:String.\t:String.s[
+  ""=t,
+  elem=\p:(Char,String).String[elem=(p.1, (++ p.2 t))]
+],
+
+strlen=\s:String.s[
+  ""=Int[0],
+  elem=\p:(Char,String).incr (strlen p.2)
+],
+
+// Options
+OptChar=[none,some:Char],
+OptBool=[none,some:Bool],
+OptInt=[none,some:Int],
+OptString=[none,some:String],
+
+// safe head / tail
+head=\s:String.s[""=OptChar[none], elem=\p:(Char,String).OptChar[some=p.1]],
+tail=\s:String.s[""=OptString[none], elem=\p:(Char,String).OptString[some=p.2]],
+
+// nth character (0-based). negative or nan => none
+nth=\s:String.\n:Int.n[
+  nan=OptChar[none],
+  d=\k:Int.OptChar[none],
+  0=s[""=OptChar[none], elem=\p:(Char,String).OptChar[some=p.1]],
+  i=\k:Int.s[""=OptChar[none], elem=\p:(Char,String).nth p.2 k]
+],
+
+// convenience
+abStr=String[
+  elem=(Char['a'], String[
+    elem=(Char['b'], String[""])
+  ])
+],
+
+
+// ===== String utilities =====
+isEmpty=\s:String.s[""=Bool[true],elem=\p:(Char,String).Bool[false]],
+
+// startsWithChar c s
+startsWithChar=\c:Char.\s:String.s[
+  ""=Bool[false],
+  elem=\p:(Char,String).(eqChar c p.1)
+],
+
+@pa+i%r_-prelude0,
+
+// containsChar c s
+containsChar=\c:Char.\s:String.s[
+  ""=Bool[false],
+  elem=\p:(Char,String).
+    (eqChar c p.1)[true=Bool[true],false=containsChar c p.2]
+],
+
+@test.tifl
